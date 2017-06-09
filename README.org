@@ -1,0 +1,59 @@
+#+title: QED
+#+startup: hidestars
+
+/This library is a piece of ancient history; I worked on that circa 2010./
+
+/Also, for historical reasons, the rest of this readme remains in Polish for now./
+
+* Wstęp
+
+  Biblioteka ta jako wynik frustracji po słabym zaliczeniu pierwszego terminu Systemów
+  Operacyjnych. Opakowuje ona całe to przykre i bolesne w użyciu API [[http://pl.wikipedia.org/wiki/Komunikacja_mi%C4%99dzyprocesowa][IPC]] UNIX’a do postaci
+  prostych klas i funkcji C++. Większość zadań, z jakimi stykaliśmy się na laboratoriach z IPC UNIX'a,
+  da się zrobić bez ani jednej linii kodu w czystym UNIX'owym API.
+
+  Zadania na kolokwiach były prawie niemożliwe do zrobienia "od zera" w wyznaczonym czasie, ale
+  mogliśmy korzystać z dowolnych źródeł i własnego kodu. Z tego, co widziałem, większość osób poszła w
+  kierunku zrobienia implementacji wszystkich zadań z laboratoriów i poprzednich kolokwiów z nadzieją,
+  że 'może któryś kod trafi'. Ja nie lubię w ten sposób pisać i jestem zbyt leniwy, żeby zrobić tyle
+  zadań ;). Więc w ramach przygotowywania się, kolejne wkurzające mnie elementy API UNIXowego lądowały
+  do wspólnego pliku, który wkrótce bardzo urósł i stał się całkiem przydatnym narzędziem :).
+
+  Najważniejszą zaletą tej biblioteczki jest to, że w końcu da się ogarnąć cały ten bajzel wynikający
+  z UNIXowego API i *można patrzeć na program jak na rozwiązanie postawionego problemu, a nie wypełniać na każdym kroku 150 dziwnych struktur*.
+  W przypadku kolejek komunikatów biblioteka zawiera mały hack oparty o szablony, dzięki któremu w ogóle nie
+  musimy stosować domyślnie potrzebnej struktury.
+
+* Zawartość
+
+  Kod biblioteki mieści się w pliku [[file:qed_lib.h][qed_lib.h]]. Biblioteka zawiera:
+
+  - Uproszczony [[http://www.boost.org/doc/libs/1_42_0/libs/conversion/lexical_cast.htm][lexical_cast]]
+  - Obiekty do łatwego synchronizowania operacji na =std::ostream= (tak, na =std::cout= też!) w programach wielowątkowych
+  - Funkcję do pobierania czasu z milisekundową rozdzielczością
+  - Pomocnicze makra zastępujące powtarzający się w kółko kod
+  - Pomocnicze funkcje do *wygodnego* =fork()= (łącznie z przepinaniem STDIN i STDOUT dziecka); [[http://en.wikipedia.org/wiki/Fork-exec][fork-exec idiom]] trzeba sobie zrobić samemu, ale co to za problem wywołać sobie funkcję =exec()= :P.
+  - Klasy izolujące [[http://beej.us/guide/bgipc/output/html/singlepage/bgipc.html#pipes][nienazwane]] i nazwane [[http://beej.us/guide/bgipc/output/html/singlepage/bgipc.html#fifos][pipe'y (FIFO)]], [[http://beej.us/guide/bgipc/output/html/singlepage/bgipc.html#semaphores][semafory]], [[http://beej.us/guide/bgipc/output/html/singlepage/bgipc.html#shm][pamięć współdzieloną]] i [[http://beej.us/guide/bgipc/output/html/singlepage/bgipc.html#mq][kolejki komunikatów]]
+  - Inne pomocnicze funkcje
+
+  Ponadto, w repozytorium znajdują się też przykładowe programy pisane w ramach nauki i samego kolokwium z Systemów Operacyjnych:
+
+  - [[file:fun_one.cpp][fun_one.cpp]] - zadanie z kolokwium. Pokazuje jedno makro QED oraz proste użycie klasy od nienazwanych pipe'ów. Program zliczający wystąpienia [[http://en.wikipedia.org/wiki/SIGINT_%28POSIX%29][SIGINT]] i [[http://en.wikipedia.org/wiki/SIGPIPE][SIGPIPE]] oraz wypisujący je na ekranie po naciśnięciu CTRL+Z. Po piątym SIGINT proponuje wyjście z programu. SIGPIPE generowane są "naturalnie", w osobnym wątku.
+  - [[file:kolos_alpha_2.cpp][kolos_alpha_2.cpp]] - zadanie z kolokwium. Pokazuje ono użycie nienazwanych pipe'ów, kolejek komunikatów oraz pamięci współdzielonej. Demonstruje także użycie większości makr QED oraz wygodne tworzenie nowych procesów. Zadanie polegało na stworzeniu grupy podprocesów przetwarzających podany im tekst a następnie uzgadniających ze sobą wynik, który ma zostać wysłany do rodzica. Każdy z tych procesów miał otrzymywać dane inną drogą.
+  - [[file:zaklad_krawiecki.cpp][zaklad_krawiecki.cpp]] - zadanie z kolokwium. Pokazuje narzędzia do synchronizowania =std::cout= między wątkami oraz makra QED, w tym =QED_PREPARE_CTRL_C_HANDLER=. Celem zadania było stworzenie symulacji zakładu krawieckiego, luźno powiązanego z problemem ucztujących filozofów.
+  - [[file:kolos_beta_4_klient.cpp][kolos_beta_4_klient.cpp]] i [[file:kolos_beta_4_serwer.cpp][kolos_beta_4_serwer.cpp]] - zadanie (chyba) z jakiegoś starego terminu. Ilustruje tworzenie nowych procesów i użycie kolejek komunikatów z uwzględnieniem typu komunikatu. Celem zadania było napisanie serwera, który oczekuje na przyłączających się klientów odbierając od nich komunikaty tekstowe i rozsyłając je do wszystkich podłączonych programów. Programy te pozwalały wprowadzać komunikaty do serwera z klawiatury, równocześnie nasłuchując i wyświetlając odpowiedzi.
+  - [[file:kolos_alpha_3_klient.cpp][kolos_alpha_3_klient.cpp]], [[file:kolos_alpha_3_pizzeria.cpp][kolos_alpha_3_pizzeria.cpp]] i [[file:kolos_alpha_3_shared.h][kolos_alpha_3_shared.h]] - kolejne zadanie z jakiegoś przeszłego terminu albo laboratoriów. Ilustruje użycie kolejek komunikatów. Celem zadania było stworzenie symulacji pizzerii, w której klienci "przychodzą" samodzielnie lub w grupach do lokalu wysyłając komunikat i mogą (lub nie) dostać stolik. Algorytm przydzielania stolików był tak zawiły, że nie chciało mi się go pisać ;). Dlatego w tym zadaniu każdy klient zawsze otrzymuje miejsce.
+
+* O nazwie
+
+  QED oznacza [[http://pl.wikipedia.org/wiki/Elektrodynamika_kwantowa][elektrodynamikę kwantową]] - bardzo pokręconą dziedzinę fizyki, o której czytałem sobie "do obiadu" w okresie
+  prac nad powyższą biblioteką. [[http://pl.wikipedia.org/wiki/Q.e.d.][Q.E.D.]] to też łaciński skrót oznaczający /Quod erat demonstrandum/ ("Co było do udowodnienia") - co
+  dobrze współgrało z moją frustracją po pierwszym terminie (na zasadzie: "no, na drugim pokażę!").
+
+* Licencja
+
+  Póki nie wymyślę innej, wszystko publikowane jest na licencji ColaWare, tj. rób z tym co chcesz, ale
+  jeśli stwierdzisz, że Ci się do czegoś przydało i spotkamy się kiedyś, to możesz mi postawić Colę
+  :).
+
+
